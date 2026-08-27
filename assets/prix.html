@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparateur de Prix</title>
+<style>
+  :root{
+    --bg:#12141c; --panel:#1a1d29; --ink:#eae7e0; --muted:#8b8fa3; --line:#2b2f40;
+    --accent:#22c55e; --danger:#ef4444;
+    --mono:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 20% -10%,#1f2333 0%,transparent 60%),
+      radial-gradient(900px 500px at 100% 0%,#182c20 0%,transparent 55%), var(--bg);
+    color:var(--ink); font-family:var(--sans); min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px;
+  }
+  .wrap{ width:100%; max-width:540px; flex:1; }
+  .nav-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .home-btn, .reset-btn{
+    display:inline-flex; align-items:center; gap:6px; background:#14161f; border:1px solid var(--line);
+    color:var(--ink); font-family:var(--mono); font-size:12px; padding:8px 14px; border-radius:10px;
+    text-decoration:none; cursor:pointer; transition:all .15s ease;
+  }
+  .home-btn:hover, .reset-btn:hover{ border-color:var(--accent); background:#1d2130; }
+  .reset-btn:hover{ border-color:var(--danger); color:var(--danger); }
+  
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:0 0 6px 2px; }
+  h1{ font-size:26px; font-weight:650; letter-spacing:-0.02em; margin:0 0 20px 2px; }
+  
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:0 30px 60px -30px rgba(0,0,0,.6); }
+  
+  .type-selector{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+  .t-btn{
+    background:#14161f; border:1px solid var(--line); color:var(--muted); font-family:var(--mono);
+    font-size:13px; padding:10px 0; border-radius:10px; cursor:pointer; text-align:center; transition:all .12s ease;
+  }
+  .t-btn[data-active="true"]{ border-color:var(--accent); color:var(--ink); background:color-mix(in srgb, var(--accent) 15%, #14161f); }
+
+  .article-card{
+    background:#14161f; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px;
+    position:relative; transition:border-color .15s ease;
+  }
+  .article-card.best{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 5%, #14161f); }
+  .article-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-family:var(--mono); font-size:13px; font-weight:600; color:var(--muted); }
+  .best-tag{ background:var(--accent); color:#000; font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; text-transform:uppercase; }
+
+  .grid-inputs{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .input-group label{ display:block; font-size:11px; color:var(--muted); margin-bottom:4px; font-weight:600; }
+  .input-group .row{ position:relative; display:flex; align-items:center; }
+  .input-group input, .input-group select{
+    width:100%; background:#0e1017; border:1px solid var(--line); color:var(--ink);
+    font-family:var(--mono); font-size:14px; padding:8px 8px; border-radius:8px; outline:none;
+  }
+  .input-group input:focus, .input-group select:focus{ border-color:var(--accent); }
+
+  .res-box{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:12px; }
+  .unit-price{ font-size:15px; font-weight:600; color:var(--ink); }
+  .diff-pct{ color:var(--muted); }
+  .article-card.best .unit-price{ color:var(--accent); }
+
+  .foot{ text-align:center; font-size:11.5px; color:var(--muted); margin-top:24px; font-family:var(--mono); }
+  .foot a{ color:var(--muted); text-decoration:underline; }
+  .foot a:hover{ color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav-header">
+    <a href="outils.html" class="home-btn">← HOME</a>
+    <button class="reset-btn" onclick="resetData()">🗑️ Réinitialiser</button>
+  </div>
+
+  <div class="eyebrow">Outil // comparaison</div>
+  <h1>Comparateur de Prix</h1>
+
+  <div class="card">
+    <div class="type-selector" id="typeSelector">
+      <button class="t-btn" data-type="weight" data-active="true">⚖️ Poids</button>
+      <button class="t-btn" data-type="volume">🧪 Volume</button>
+      <button class="t-btn" data-type="unit">📦 Unités / Lots</button>
+    </div>
+
+    <div id="articlesContainer"></div>
+  </div>
+</div>
+
+<div class="foot">
+  100 % autonome — calculs et sauvegardes conservés localement<br><br>
+  <a href="https://redpi.fr" target="_blank" rel="noopener">redpi.fr</a>
+</div>
+
+<script>
+let currentType = 'weight';
+let items = [
+  { price: 17, qty: 900, unit: 'g' },
+  { price: 21, qty: 1, unit: 'kg' },
+  { price: '', qty: '', unit: 'g' }
+];
+
+const unitOptions = {
+  weight: ['g', 'kg', 'mg'],
+  volume: ['ml', 'cl', 'L'],
+  unit: ['unité(s)', 'pack', 'lot']
+};
+
+const baseConversions = {
+  mg: 0.000001, g: 0.001, kg: 1,
+  ml: 0.001, cl: 0.01, L: 1,
+  'unité(s)': 1, pack: 1, lot: 1
+};
+
+function init(){
+  const saved = localStorage.getItem('priceComparatorData');
+  if(saved){
+    try {
+      const parsed = JSON.parse(saved);
+      currentType = parsed.type || 'weight';
+      items = parsed.items || items;
+    } catch(e){}
+  }
+  updateTypeButtons();
+  renderStructure();
+  calculateAndUpdateUI();
+}
+
+function save(){
+  localStorage.setItem('priceComparatorData', JSON.stringify({ type: currentType, items }));
+}
+
+function updateTypeButtons(){
+  document.querySelectorAll('#typeSelector .t-btn').forEach(btn => {
+    btn.dataset.active = (btn.dataset.type === currentType) ? "true" : "false";
+  });
+}
+
+document.getElementById('typeSelector').addEventListener('click', e => {
+  const btn = e.target.closest('.t-btn');
+  if(!btn) return;
+  currentType = btn.dataset.type;
+  updateTypeButtons();
+  items.forEach(item => { if(!unitOptions[currentType].includes(item.unit)) item.unit = unitOptions[currentType][0]; });
+  save();
+  renderStructure();
+  calculateAndUpdateUI();
+});
+
+function calculateUnitPrices(){
+  return items.map(item => {
+    const p = parseFloat(item.price);
+    const q = parseFloat(item.qty);
+    if(isNaN(p) || isNaN(q) || q <= 0 || p <= 0) return null;
+    const factor = baseConversions[item.unit] || 1;
+    const baseQty = q * factor; 
+    return p / baseQty; 
+  });
+}
+
+// Génère la structure HTML uniquement au chargement ou au changement de type (Poids/Volume/Unités)
+function renderStructure(){
+  const container = document.getElementById('articlesContainer');
+
+  container.innerHTML = items.map((item, idx) => {
+    const options = unitOptions[currentType].map(u => `<option value="${u}" ${item.unit === u ? 'selected':''}>${u}</option>`).join('');
+
+    return `
+      <div class="article-card" id="card-${idx}">
+        <div class="article-head">
+          <span>Article ${idx + 1}</span>
+          <span class="best-tag" id="tag-${idx}" style="display:none;">Meilleure offre</span>
+        </div>
+        <div class="grid-inputs">
+          <div class="input-group">
+            <label>Prix (€)</label>
+            <input type="number" step="any" value="${item.price}" oninput="updateItem(${idx}, 'price', this.value)" placeholder="0.00">
+          </div>
+          <div class="input-group">
+            <label>Quantité</label>
+            <input type="number" step="any" value="${item.qty}" oninput="updateItem(${idx}, 'qty', this.value)" placeholder="0">
+          </div>
+          <div class="input-group">
+            <label>Unité</label>
+            <select onchange="updateItem(${idx}, 'unit', this.value)">${options}</select>
+          </div>
+        </div>
+        <div class="res-box">
+          <span class="unit-price" id="uprice-${idx}">—</span>
+          <span class="diff-pct" id="diff-${idx}"></span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Met à jour uniquement les textes et styles de résultats sans toucher aux éléments <input>
+function calculateAndUpdateUI(){
+  const unitPrices = calculateUnitPrices();
+  const validPrices = unitPrices.filter(v => v !== null);
+  const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : null;
+  const baseUnitLabel = currentType === 'weight' ? '/ kg' : (currentType === 'volume' ? '/ L' : '/ unité');
+
+  items.forEach((item, idx) => {
+    const uPrice = unitPrices[idx];
+    const isBest = uPrice !== null && uPrice === minPrice && validPrices.length > 1;
+    
+    let diffStr = '';
+    if(uPrice !== null && minPrice !== null && uPrice > minPrice){
+      const diffPct = ((uPrice - minPrice) / minPrice) * 100;
+      diffStr = `+${diffPct.toFixed(1)}% cher`;
+    }
+
+    const card = document.getElementById(`card-${idx}`);
+    const tag = document.getElementById(`tag-${idx}`);
+    const upriceEl = document.getElementById(`uprice-${idx}`);
+    const diffEl = document.getElementById(`diff-${idx}`);
+
+    if(card) card.classList.toggle('best', isBest);
+    if(tag) tag.style.display = isBest ? 'inline-block' : 'none';
+    if(upriceEl) upriceEl.textContent = uPrice !== null ? uPrice.toFixed(2) + ' € ' + baseUnitLabel : '—';
+    if(diffEl) diffEl.textContent = diffStr;
+  });
+}
+
+function updateItem(idx, field, val){
+  items[idx][field] = val;
+  save();
+  calculateAndUpdateUI();
+}
+
+function resetData(){
+  if(confirm("Réinitialiser les données de comparaison ?")){
+    items = [
+      { price: '', qty: '', unit: unitOptions[currentType][0] },
+      { price: '', qty: '', unit: unitOptions[currentType][0] },
+      { price: '', qty: '', unit: unitOptions[currentType][0] }
+    ];
+    save();
+    renderStructure();
+    calculateAndUpdateUI();
+  }
+}
+
+init();
+</script>
+</body>
+</html>

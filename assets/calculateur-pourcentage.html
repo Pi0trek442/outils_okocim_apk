@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur de pourcentage</title>
+<style>
+  :root{
+    --bg:#12141c; --panel:#1a1d29; --ink:#eae7e0; --muted:#8b8fa3; --line:#2b2f40;
+    --simple:#8b7fd1; --up:#3fb27f; --down:#e0616b; --complete:#e8a33d;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 20% -10%, #1f2333 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #1a2b28 0%, transparent 55%), var(--bg);
+    color:var(--ink); font-family:var(--sans); min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px;
+  }
+  .wrap{ width:100%; max-width:460px; flex:1; }
+  .nav-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .home-btn, .reset-btn{
+    display:inline-flex; align-items:center; gap:6px; background:#14161f; border:1px solid var(--line);
+    color:var(--ink); font-family:var(--mono); font-size:12px; padding:8px 14px; border-radius:10px;
+    text-decoration:none; cursor:pointer; transition:all .15s ease;
+  }
+  .home-btn:hover, .reset-btn:hover{ border-color:var(--simple); background:#1d2130; }
+  .reset-btn:hover{ border-color:var(--down); color:var(--down); }
+
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:0 0 6px 2px; }
+  h1{ font-size:26px; font-weight:650; letter-spacing:-0.02em; margin:0 0 20px 2px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:20px; overflow:hidden; box-shadow:0 30px 60px -30px rgba(0,0,0,.6); }
+  .tabs{ display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--line); }
+  .tab{ appearance:none; background:transparent; border:none; color:var(--muted); font-family:var(--sans); font-size:12.5px; font-weight:600; padding:16px 4px 13px; cursor:pointer; position:relative; }
+  .tab .sym{ display:block; font-family:var(--mono); font-size:13px; margin-bottom:4px; color:var(--muted); }
+  .tab[data-active="true"]{ color:var(--ink); }
+  .tab[data-active="true"]::after{ content:""; position:absolute; left:14%; right:14%; bottom:0; height:2px; background:var(--accent); }
+  .tab[data-active="true"] .sym{ color:var(--accent); }
+  .body{ padding:26px 24px 24px; }
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:12.5px; color:var(--muted); margin-bottom:8px; font-weight:600; }
+  .field .row{ position:relative; display:flex; align-items:center; }
+  .field input[type=number]{ width:100%; background:#14161f; border:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:20px; padding:13px 44px 13px 14px; border-radius:12px; outline:none; }
+  .unit{ position:absolute; right:14px; font-family:var(--mono); color:var(--muted); font-size:14px; pointer-events:none; }
+  .readout{ margin-top:6px; border-radius:14px; padding:20px; background:#0e1017; border:1px solid var(--line); }
+  .readout .label{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
+  .readout .value{ font-family:var(--mono); font-size:42px; font-weight:600; color:var(--accent); margin-top:4px; }
+  .readout .formula, .readout .delta{ margin-top:8px; font-family:var(--mono); font-size:13px; color:var(--muted); }
+  .mode-panel{ display:none; }
+  .mode-panel[data-active="true"]{ display:block; }
+  .foot{ text-align:center; font-size:11.5px; color:var(--muted); margin-top:24px; font-family:var(--mono); }
+  .foot a{ color:var(--muted); text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="nav-header">
+    <a href="outils.html" class="home-btn">← HOME</a>
+    <button class="reset-btn" onclick="resetAll()">🗑️ Réinitialiser</button>
+  </div>
+
+  <div class="eyebrow">Outil // pourcentages</div>
+  <h1>Calculateur de pourcentage</h1>
+
+  <div class="card" style="--accent:var(--simple)">
+    <div class="tabs" id="tabs">
+      <button class="tab" data-mode="simple" data-active="true"><span class="sym">%</span>Simple</button>
+      <button class="tab" data-mode="up"><span class="sym">+%</span>Augmentation</button>
+      <button class="tab" data-mode="down"><span class="sym">−%</span>Diminution</button>
+      <button class="tab" data-mode="complete"><span class="sym">⇄</span>Complète</button>
+    </div>
+
+    <div class="body">
+      <div class="mode-panel" data-panel="simple" data-active="true">
+        <div class="field"><label>Valeur</label><div class="row"><input type="number" id="s_val" value="100"></div></div>
+        <div class="field"><label>Pourcentage</label><div class="row"><input type="number" id="s_pct" value="10"><span class="unit">%</span></div></div>
+        <div class="readout"><div class="label">Résultat</div><div class="value" id="s_out">10</div><div class="formula" id="s_formula">10 % de 100</div></div>
+      </div>
+
+      <div class="mode-panel" data-panel="up">
+        <div class="field"><label>Valeur de départ</label><div class="row"><input type="number" id="u_val" value="100"></div></div>
+        <div class="field"><label>Pourcentage</label><div class="row"><input type="number" id="u_pct" value="10"><span class="unit">%</span></div></div>
+        <div class="readout"><div class="label">Résultat</div><div class="value" id="u_out">110</div><div class="delta" id="u_delta">Augmentation : +10</div></div>
+      </div>
+
+      <div class="mode-panel" data-panel="down">
+        <div class="field"><label>Valeur de départ</label><div class="row"><input type="number" id="d_val" value="100"></div></div>
+        <div class="field"><label>Pourcentage</label><div class="row"><input type="number" id="d_pct" value="10"><span class="unit">%</span></div></div>
+        <div class="readout"><div class="label">Résultat</div><div class="value" id="d_out">90</div><div class="delta" id="d_delta">Diminution : −10</div></div>
+      </div>
+
+      <div class="mode-panel" data-panel="complete">
+        <div class="field"><label>Valeur initiale</label><div class="row"><input type="number" id="c_from" value="100"></div></div>
+        <div class="field"><label>Valeur finale</label><div class="row"><input type="number" id="c_to" value="120"></div></div>
+        <div class="readout"><div class="label">Variation</div><div class="value" id="c_out">+20 %</div><div class="formula" id="c_formula">détails</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  100 % autonome — calculs faits localement<br><br>
+  <a href="https://redpi.fr" target="_blank" rel="noopener">redpi.fr</a>
+</div>
+
+<script>
+const fields = ['s_val','s_pct','u_val','u_pct','d_val','d_pct','c_from','c_to'];
+function save(){
+  const data = {};
+  fields.forEach(id => data[id] = document.getElementById(id).value);
+  localStorage.setItem('pctCalcData', JSON.stringify(data));
+}
+function load(){
+  const saved = localStorage.getItem('pctCalcData');
+  if(saved){
+    try {
+      const data = JSON.parse(saved);
+      fields.forEach(id => { if(data[id] !== undefined) document.getElementById(id).value = data[id]; });
+    } catch(e){}
+  }
+}
+
+function fmt(n){ return isFinite(n) ? (Math.round(n*100)/100).toLocaleString('fr-FR') : "—"; }
+function num(id){ const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
+
+function setMode(mode){
+  document.querySelectorAll('.tab').forEach(t=>t.dataset.active = (t.dataset.mode===mode) ? "true" : "false");
+  document.querySelectorAll('.mode-panel').forEach(p=>p.dataset.active = (p.dataset.panel===mode) ? "true" : "false");
+}
+
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab');
+  if(btn) setMode(btn.dataset.mode);
+});
+
+function calc(){
+  save();
+  const s_out = num('s_val') * num('s_pct') / 100;
+  document.getElementById('s_out').textContent = fmt(s_out);
+
+  const u_out = num('u_val') * (1 + num('u_pct')/100);
+  document.getElementById('u_out').textContent = fmt(u_out);
+
+  const d_out = num('d_val') * (1 - num('d_pct')/100);
+  document.getElementById('d_out').textContent = fmt(d_out);
+
+  const diff = num('c_to') - num('c_from');
+  const pct = num('c_from') !== 0 ? (diff/num('c_from'))*100 : 0;
+  document.getElementById('c_out').textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)} %`;
+}
+
+function resetAll(){
+  if(confirm("Réinitialiser les valeurs ?")){
+    localStorage.removeItem('pctCalcData');
+    location.reload();
+  }
+}
+
+fields.forEach(id => document.getElementById(id).addEventListener('input', calc));
+load(); calc();
+</script>
+</body>
+</html>

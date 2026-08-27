@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outils & Calculateurs</title>
+<style>
+  :root{
+    --bg:#12141c; --panel:#1a1d29; --ink:#eae7e0; --muted:#8b8fa3; --line:#2b2f40;
+    --mono:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 20% -10%,#1f2333 0%,transparent 60%),
+      radial-gradient(900px 500px at 100% 0%,#1c1f2c 0%,transparent 55%), var(--bg);
+    color:var(--ink); font-family:var(--sans); min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px;
+  }
+  .wrap{ width:100%; max-width:480px; flex:1; }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:0 0 6px 2px; }
+  h1{ font-size:26px; font-weight:650; letter-spacing:-0.02em; margin:0 0 24px 2px; }
+
+  .list{ display:flex; flex-direction:column; gap:12px; }
+  .tool{
+    display:flex; align-items:center; gap:16px;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:16px 18px; text-decoration:none; color:var(--ink);
+    transition:border-color .15s ease, transform .15s ease, background .15s ease;
+  }
+  .tool:hover{ border-color:var(--accent); transform:translateX(2px); background:#1d2130; }
+  .sym{
+    width:42px; height:42px; flex:none; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:16px; font-weight:600;
+    background:color-mix(in srgb, var(--accent) 16%, #14161f);
+    color:var(--accent); border:1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  }
+  .txt{ flex:1; min-width:0; }
+  .txt .name{ display:block; font-size:15px; font-weight:600; }
+  .txt .desc{ display:block; font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .arrow{ font-family:var(--mono); color:var(--muted); font-size:16px; flex:none; }
+
+  .foot{ text-align:center; font-size:11.5px; color:var(--muted); margin-top:32px; font-family:var(--mono); }
+  .foot a{ color:var(--muted); text-decoration:underline; }
+  .foot a:hover{ color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Sommaire</div>
+  <h1>Outils & Calculateurs</h1>
+
+  <div class="list">
+    <a class="tool" href="prix.html" style="--accent:#22c55e">
+      <span class="sym">⚖️</span>
+      <span class="txt">
+        <span class="name">Comparateur de Prix</span>
+        <span class="desc">Poids, volumes, lots et unités lors de vos courses</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="tool" href="alcool.html" style="--accent:#667eea">
+      <span class="sym">🍺</span>
+      <span class="txt">
+        <span class="name">Alcoolémie</span>
+        <span class="desc">Suivi d'alcoolémie en temps réel et prévisions</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="tool" href="calculateur-pourcentage.html" style="--accent:#8b7fd1">
+      <span class="sym">%</span>
+      <span class="txt">
+        <span class="name">Pourcentage</span>
+        <span class="desc">Simple, augmentation, diminution, variation</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="tool" href="calculateur-interets-composes.html" style="--accent:#3fb27f">
+      <span class="sym">◎</span>
+      <span class="txt">
+        <span class="name">Intérêts composés</span>
+        <span class="desc">Capitalisation, fiscalité, ajustement d'inflation</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="tool" href="calculateur-frais.html" style="--accent:#e0616b">
+      <span class="sym">−%</span>
+      <span class="txt">
+        <span class="name">Frais</span>
+        <span class="desc">Impact des frais de versement, gestion et retrait</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="tool" href="calculateur-credit-immobilier.html" style="--accent:#e8a33d">
+      <span class="sym">⌂</span>
+      <span class="txt">
+        <span class="name">Crédit immobilier</span>
+        <span class="desc">Mensualité, coût total, amortissement, assurance</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="tool" href="calculateur-inflation.html" style="--accent:#8b7fd1">
+      <span class="sym">↓</span>
+      <span class="txt">
+        <span class="name">Inflation</span>
+        <span class="desc">Pouvoir d'achat futur et perte de valeur</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+</div>
+
+<div class="foot">
+  100 % autonome — tous les calculs se font dans le navigateur<br><br>
+  <a href="https://redpi.fr" target="_blank" rel="noopener">redpi.fr</a>
+</div>
+</body>
+</html>

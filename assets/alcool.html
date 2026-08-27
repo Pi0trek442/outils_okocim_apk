@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur d'alcoolémie</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .container {
+            max-width: 900px; width: 100%; margin: 0 auto;
+            background: white; border-radius: 20px; padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); flex: 1;
+        }
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .home-btn {
+            display: inline-flex; align-items: center; gap: 6px; background: #f0f2f5;
+            color: #333; font-weight: 600; font-size: 13px; padding: 8px 14px;
+            border-radius: 8px; text-decoration: none; transition: background 0.2s;
+        }
+        .home-btn:hover { background: #e4e6eb; }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 28px; }
+        .subtitle { color: #666; margin-bottom: 20px; font-size: 14px; }
+        .profile-section { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 25px; }
+        .profile-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) { .profile-row { grid-template-columns: 1fr; } }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s; }
+        input:focus, select:focus { outline: none; border-color: #667eea; }
+        .unit-selector, .gender-selector { display: flex; gap: 10px; margin-top: 8px; }
+        .unit-btn, .gender-btn { flex: 1; padding: 10px; border: 2px solid #e0e0e0; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 600; font-size: 14px; }
+        .unit-btn.active, .gender-btn.active { background: #667eea; color: white; border-color: #667eea; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 10px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        .btn-clear { background: #f44336; color: white; }
+        .btn-clear:hover { background: #da190b; }
+        .status-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin: 25px 0; text-align: center; }
+        .status-card.safe { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .status-card.warning { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); }
+        .status-card.danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+        .status-value { font-size: 48px; font-weight: bold; margin: 10px 0; }
+        .status-label { font-size: 14px; opacity: 0.9; margin-bottom: 15px; }
+        .status-message { background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; margin-top: 15px; font-size: 14px; line-height: 1.5; }
+        .chart-container { margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 15px; position: relative; height: 350px; }
+        .drinks-list { margin-top: 30px; }
+        .drinks-list h3 { color: #333; margin-bottom: 15px; font-size: 18px; }
+        .drink-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .drink-info { flex: 1; }
+        .drink-name { font-weight: 600; color: #333; margin-bottom: 5px; }
+        .drink-details { font-size: 14px; color: #666; }
+        .drink-grams { font-size: 20px; font-weight: bold; color: #667eea; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 25px 0; }
+        .info-box { background: #f8f9fa; padding: 20px; border-radius: 12px; text-align: center; }
+        .info-box-value { font-size: 24px; font-weight: bold; color: #667eea; margin-bottom: 5px; }
+        .info-box-label { font-size: 13px; color: #666; }
+        .fun-facts { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 15px; margin: 25px 0; }
+        .fun-facts h4 { margin-bottom: 15px; font-size: 18px; }
+        .fun-facts p { margin-bottom: 10px; line-height: 1.6; font-size: 14px; }
+        canvas { display: block; width: 100% !important; height: 300px !important; }
+        .foot { text-align: center; font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 24px; font-family: monospace; }
+        .foot a { color: white; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <a href="outils.html" class="home-btn">← HOME</a>
+        </div>
+        <h1>🍺 Calculateur d'alcoolémie avancé</h1>
+        <p class="subtitle">Suivez votre taux d'alcoolémie en temps réel avec courbe et conseils</p>
+
+        <div class="profile-section">
+            <h3 style="margin-bottom: 15px; color: #333;">👤 Votre profil</h3>
+            <div class="profile-row">
+                <div class="form-group">
+                    <label>Poids (kg)</label>
+                    <input type="number" id="weight" placeholder="70" value="70" min="30" max="200">
+                </div>
+                <div class="form-group">
+                    <label>Sexe</label>
+                    <div class="gender-selector">
+                        <button class="gender-btn active" onclick="setGender('male')">♂️ Homme</button>
+                        <button class="gender-btn" onclick="setGender('female')">♀️ Femme</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Début de soirée</label>
+                    <input type="time" id="startTime" value="20:00">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>🕐 Heure de consommation</label>
+            <input type="time" id="drinkTime" value="20:00">
+        </div>
+
+        <div class="form-group">
+            <label>Volume</label>
+            <input type="number" id="volume" placeholder="Ex: 33, 25, 12.5" step="0.1" min="0">
+            <div class="unit-selector">
+                <button class="unit-btn active" onclick="setUnit('cl')">cl (centilitres)</button>
+                <button class="unit-btn" onclick="setUnit('l')">L (litres)</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Degré d'alcool (%)</label>
+            <input type="number" id="degree" placeholder="Ex: 5, 12, 40" step="0.1" min="0" max="100">
+        </div>
+
+        <div class="form-group">
+            <label>Nom de la boisson (optionnel)</label>
+            <input type="text" id="drinkName" placeholder="Ex: Bière, Shooter, Champagne">
+        </div>
+
+        <button class="btn btn-primary" onclick="addDrink()">➕ Ajouter cette boisson</button>
+
+        <div id="statusSection" style="display: none;">
+            <div class="status-card" id="statusCard">
+                <div class="status-label">Taux d'alcoolémie estimé</div>
+                <div class="status-value" id="statusValue">0.0 g/L</div>
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-box">
+                    <div class="info-box-value" id="totalGrams">0 g</div>
+                    <div class="info-box-label">Alcool pur total</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-box-value" id="legalLimit">0×</div>
+                    <div class="info-box-label">Limite légale (0.5 g/L)</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-box-value" id="soberTime">--:--</div>
+                    <div class="info-box-label">Retour à 0 g/L estimé</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="alcoholChart"></canvas>
+            </div>
+
+            <div class="fun-facts" id="funFacts"></div>
+        </div>
+
+        <div class="drinks-list" id="drinksList" style="display: none;">
+            <h3>📋 Boissons consommées</h3>
+            <div id="drinksContainer"></div>
+            <button class="btn btn-clear" onclick="clearSession()">🗑️ Effacer la session</button>
+        </div>
+    </div>
+
+    <div class="foot">
+        <a href="https://redpi.fr" target="_blank" rel="noopener">redpi.fr</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        let currentUnit = 'cl';
+        let currentGender = 'male';
+        let drinks = [];
+        let chart = null;
+
+        window.addEventListener('DOMContentLoaded', function() { loadFromStorage(); });
+
+        function saveToStorage() {
+            const data = { drinks, weight: document.getElementById('weight').value, gender: currentGender, startTime: document.getElementById('startTime').value };
+            try { localStorage.setItem('alcoholCalculator', JSON.stringify(data)); } catch(e){}
+        }
+
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('alcoholCalculator');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    drinks = data.drinks || [];
+                    if (data.weight) document.getElementById('weight').value = data.weight;
+                    if (data.gender) {
+                        currentGender = data.gender;
+                        document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
+                        const target = document.querySelector(`[onclick="setGender('${data.gender}')"]`);
+                        if(target) target.classList.add('active');
+                    }
+                    if (data.startTime) document.getElementById('startTime').value = data.startTime;
+                    if (drinks.length > 0) updateDisplay();
+                }
+            } catch(e){}
+        }
+
+        function setUnit(unit) {
+            currentUnit = unit;
+            document.querySelectorAll('.unit-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function setGender(gender) {
+            currentGender = gender;
+            document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            saveToStorage();
+            if (drinks.length > 0) updateDisplay();
+        }
+
+        function calculateAlcoholGrams(v, d) { return v * d * 0.8 / 100; }
+        function calculateBAC(g, w, gen) { return g / (w * (gen === 'male' ? 0.7 : 0.6)); }
+
+        function addDrink() {
+            const volumeInput = document.getElementById('volume').value;
+            const degreeInput = document.getElementById('degree').value;
+            const drinkName = document.getElementById('drinkName').value || 'Boisson sans nom';
+            const drinkTime = document.getElementById('drinkTime').value;
+
+            if (!volumeInput || !degreeInput || !drinkTime) { alert('Renseignez tous les champs requis'); return; }
+
+            let volumeCl = parseFloat(volumeInput);
+            if (currentUnit === 'l') volumeCl *= 100;
+
+            drinks.push({
+                name: drinkName, volume: volumeInput, unit: currentUnit, degree: parseFloat(degreeInput),
+                grams: calculateAlcoholGrams(volumeCl, parseFloat(degreeInput)), time: drinkTime
+            });
+            drinks.sort((a, b) => a.time.localeCompare(b.time));
+            saveToStorage(); updateDisplay(); clearInputs();
+        }
+
+        function updateDisplay() {
+            const weight = parseFloat(document.getElementById('weight').value) || 70;
+            if (drinks.length === 0) {
+                document.getElementById('drinksList').style.display = 'none';
+                document.getElementById('statusSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('drinksList').style.display = 'block';
+            document.getElementById('statusSection').style.display = 'block';
+
+            document.getElementById('drinksContainer').innerHTML = drinks.map(d => `
+                <div class="drink-item">
+                    <div class="drink-info">
+                        <div class="drink-name">🕐 ${d.time} - ${d.name}</div>
+                        <div class="drink-details">${d.volume} ${d.unit} • ${d.degree}% vol.</div>
+                    </div>
+                    <div class="drink-grams">${d.grams.toFixed(1)} g</div>
+                </div>
+            `).join('');
+
+            const totalGrams = drinks.reduce((s, d) => s + d.grams, 0);
+            const currentBAC = calculateBAC(totalGrams, weight, currentGender);
+
+            document.getElementById('totalGrams').textContent = `${totalGrams.toFixed(1)} g`;
+            document.getElementById('statusValue').textContent = `${currentBAC.toFixed(2)} g/L`;
+            document.getElementById('legalLimit').textContent = `${(currentBAC / 0.5).toFixed(1)}×`;
+
+            const soberTime = addHours(document.getElementById('startTime').value, currentBAC / 0.15);
+            document.getElementById('soberTime').textContent = soberTime;
+
+            updateStatusCard(currentBAC); updateChart(); updateFunFacts(currentBAC, totalGrams);
+        }
+
+        function addHours(time, hours) {
+            const [h, m] = time.split(':').map(Number);
+            const totalMinutes = h * 60 + m + Math.round(hours * 60);
+            return `${String(Math.floor(totalMinutes / 60) % 24).padStart(2, '0')}:${String(totalMinutes % 60).padStart(2, '0')}`;
+        }
+
+        function updateStatusCard(bac) {
+            const card = document.getElementById('statusCard');
+            const msg = document.getElementById('statusMessage');
+            card.classList.remove('safe', 'warning', 'danger');
+            if (bac < 0.2) { card.classList.add('safe'); msg.innerHTML = '✅ <strong>Sécurité</strong><br>Taux faible'; }
+            else if (bac < 0.5) { card.classList.add('warning'); msg.innerHTML = '⚠️ <strong>Attention</strong><br>Proche de la limite légale (0.5 g/L)'; }
+            else { card.classList.add('danger'); msg.innerHTML = '🚫 <strong>INTERDIT DE CONDUIRE</strong><br>Limite dépassée'; }
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('alcoholChart');
+            if (!ctx) return;
+            const weight = parseFloat(document.getElementById('weight').value) || 70;
+            const [startH, startM] = document.getElementById('startTime').value.split(':').map(Number);
+            const startMinutes = startH * 60 + startM;
+            const dataPoints = [], labels = [];
+
+            for (let i = 0; i <= 48; i++) {
+                const currentMinutes = startMinutes + (i * 15);
+                let bac = 0;
+                drinks.forEach(d => {
+                    const [dH, dM] = d.time.split(':').map(Number);
+                    const mins = currentMinutes - (dH * 60 + dM);
+                    if (mins >= 0) bac += Math.max(0, calculateBAC(d.grams, weight, currentGender) - ((mins / 60) * 0.15));
+                });
+                labels.push(i % 2 === 0 ? `${String(Math.floor(currentMinutes / 60) % 24).padStart(2, '0')}:${String(currentMinutes % 60).padStart(2, '0')}` : '');
+                dataPoints.push(bac);
+            }
+
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: 'Taux (g/L)', data: dataPoints, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateFunFacts(bac) {
+            document.getElementById('funFacts').innerHTML = `<h4>💡 Le saviez-vous ?</h4><p>Votre corps élimine environ 0.10 à 0.15 g/L par heure d'alcool pur.</p>`;
+        }
+
+        function clearInputs() { document.getElementById('volume').value = ''; document.getElementById('degree').value = ''; document.getElementById('drinkName').value = ''; }
+        function clearSession() { if (confirm('Effacer toutes les boissons ?')) { drinks = []; saveToStorage(); updateDisplay(); } }
+
+        document.getElementById('weight').addEventListener('change', saveToStorage);
+        document.getElementById('startTime').addEventListener('change', saveToStorage);
+    </script>
+</body>
+</html>
