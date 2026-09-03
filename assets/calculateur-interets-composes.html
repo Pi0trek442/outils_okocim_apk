@@ -1,138 +1,389 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculateur d'intérêts composés</title>
-<style>
-  :root{
-    --bg:#12141c; --panel:#1a1d29; --ink:#eae7e0; --muted:#8b8fa3; --line:#2b2f40;
-    --accent:#3fb27f; --accent2:#e8a33d; --danger:#e0616b;
-    --mono:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,monospace;
-    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:radial-gradient(1200px 600px at 20% -10%,#1f2333 0%,transparent 60%),
-      radial-gradient(900px 500px at 100% 0%,#1a2b28 0%,transparent 55%), var(--bg);
-    color:var(--ink); font-family:var(--sans); min-height:100vh;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px;
-  }
-  .wrap{ width:100%; max-width:500px; flex:1; }
-  .nav-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-  .home-btn, .reset-btn{
-    display:inline-flex; align-items:center; gap:6px; background:#14161f; border:1px solid var(--line);
-    color:var(--ink); font-family:var(--mono); font-size:12px; padding:8px 14px; border-radius:10px;
-    text-decoration:none; cursor:pointer; transition:all .15s ease;
-  }
-  .home-btn:hover, .reset-btn:hover{ border-color:var(--accent); background:#1d2130; }
-  .reset-btn:hover{ border-color:var(--danger); color:var(--danger); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur d'intérêts composés</title>
+  <style>
+    :root {
+      --bg: #12141c;
+      --panel: #1a1d29;
+      --ink: #eae7e0;
+      --muted: #8b8fa3;
+      --line: #2b2f40;
+      --accent: #3fb27f;
+      --accent2: #e8a33d;
+      --danger: #e0616b;
+      --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
 
-  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:0 0 6px 2px; }
-  h1{ font-size:26px; font-weight:650; letter-spacing:-0.02em; margin:0 0 20px 2px; }
-  .card{ background:var(--panel); border:1px solid var(--line); border-radius:20px; overflow:hidden; box-shadow:0 30px 60px -30px rgba(0,0,0,.6); }
-  .body{ padding:26px 24px 24px; }
-  .field{ margin-bottom:16px; }
-  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .field label{ display:block; font-size:12.5px; color:var(--muted); margin-bottom:8px; font-weight:600; }
-  .field .row{ position:relative; display:flex; align-items:center; }
-  .field input[type=number]{ width:100%; background:#14161f; border:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:18px; padding:12px 40px 12px 14px; border-radius:12px; outline:none; }
-  .unit{ position:absolute; right:14px; font-family:var(--mono); color:var(--muted); font-size:13px; pointer-events:none; }
-  .readout{ margin-top:8px; border-radius:14px; padding:20px; background:#0e1017; border:1px solid var(--line); }
-  .stat-label{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
-  .stat-value{ font-family:var(--mono); font-size:20px; font-weight:600; color:var(--ink); margin-top:2px; }
-  .stat-row{ display:flex; justify-content:space-between; align-items:flex-end; padding:10px 0; border-bottom:1px solid var(--line); }
-  .stat-row.highlight .stat-value{ color:var(--accent); font-size:30px; }
-  .foot{ text-align:center; font-size:11.5px; color:var(--muted); margin-top:24px; font-family:var(--mono); }
-  .foot a{ color:var(--muted); text-decoration:underline; }
-</style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(1200px 600px at 20% -10%, #1f2333 0%, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, #1a2b28 0%, transparent 55%), var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 500px;
+      flex: 1;
+    }
+
+    .nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .home-btn,
+    .reset-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #14161f;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .home-btn:hover,
+    .reset-btn:hover {
+      border-color: var(--accent);
+      background: #1d2130;
+    }
+
+    .reset-btn:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 6px 2px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin: 0 0 20px 2px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .6);
+    }
+
+    .body {
+      padding: 26px 24px 24px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .field .row {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .field input[type=number] {
+      width: 100%;
+      background: #14161f;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 18px;
+      padding: 12px 40px 12px 14px;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .field input[type=number]:focus {
+      border-color: var(--accent);
+    }
+
+    .unit {
+      position: absolute;
+      right: 14px;
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-container input {
+      accent-color: var(--accent);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .readout {
+      margin-top: 16px;
+      border-radius: 14px;
+      padding: 20px;
+      background: #0e1017;
+      border: 1px solid var(--line);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-top: 2px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stat-row.highlight .stat-value {
+      color: var(--accent);
+      font-size: 26px;
+    }
+
+    .stat-row.real .stat-value {
+      color: var(--accent2);
+      font-size: 22px;
+    }
+
+    .foot {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 24px;
+      font-family: var(--mono);
+    }
+
+    .foot a {
+      color: var(--muted);
+      text-decoration: underline;
+    }
+  </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="nav-header">
-    <a href="outils.html" class="home-btn">← HOME</a>
-    <button class="reset-btn" onclick="resetAll()">🗑️ Réinitialiser</button>
-  </div>
+  <div class="wrap">
+    <div class="nav-header">
+      <a href="outils.html" class="home-btn">← HOME</a>
+      <button class="reset-btn" onclick="resetAll()">🗑️ Réinitialiser</button>
+    </div>
 
-  <div class="eyebrow">Outil // capitalisation</div>
-  <h1>Intérêts composés</h1>
+    <div class="eyebrow">Outil // capitalisation</div>
+    <h1>Intérêts composés</h1>
 
-  <div class="card">
-    <div class="body">
-      <div class="grid2">
-        <div class="field"><label>Capital initial</label><div class="row"><input type="number" id="init" value="10000"><span class="unit">€</span></div></div>
-        <div class="field"><label>Dépôt mensuel</label><div class="row"><input type="number" id="pmt" value="0"><span class="unit">€</span></div></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Durée</label><div class="row"><input type="number" id="years" value="20"><span class="unit">ans</span></div></div>
-        <div class="field"><label>Taux annuel</label><div class="row"><input type="number" id="rate" value="8" step="0.1"><span class="unit">%</span></div></div>
-      </div>
-
-      <div class="readout">
-        <div class="stat-row highlight">
-          <div><div class="stat-label">Capital final</div></div>
-          <div class="stat-value" id="out_main">—</div>
+    <div class="card">
+      <div class="body">
+        <div class="grid2">
+          <div class="field">
+            <label>Capital initial</label>
+            <div class="row"><input type="number" id="init" value="10000" oninput="updateUI()"><span
+                class="unit">€</span></div>
+          </div>
+          <div class="field">
+            <label>Dépôt mensuel</label>
+            <div class="row"><input type="number" id="pmt" value="100" oninput="updateUI()"><span class="unit">€</span>
+            </div>
+          </div>
         </div>
-        <div class="stat-row">
-          <div><div class="stat-name">Total versé</div></div>
-          <div class="stat-value" id="out_paid">—</div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Durée</label>
+            <div class="row"><input type="number" id="years" value="20" oninput="updateUI()"><span
+                class="unit">ans</span></div>
+          </div>
+          <div class="field">
+            <label>Taux annuel</label>
+            <div class="row"><input type="number" id="rate" value="8" step="0.1" oninput="updateUI()"><span
+                class="unit">%</span></div>
+          </div>
+        </div>
+
+        <label class="checkbox-container">
+          <input type="checkbox" id="chkInflation" checked onchange="toggleInflation(this.checked)">
+          <span>Ajuster selon l'inflation</span>
+        </label>
+
+        <div class="field" id="inflationRateGroup">
+          <label>Taux d'inflation annuel</label>
+          <div class="row"><input type="number" id="inflationRate" value="2" step="0.1" oninput="updateUI()"><span
+              class="unit">%</span></div>
+        </div>
+
+        <div class="readout">
+          <div class="stat-row highlight">
+            <div>
+              <div class="stat-label">Capital final brut</div>
+            </div>
+            <div class="stat-value" id="resFuture">—</div>
+          </div>
+          <div class="stat-row real" id="resRealBox">
+            <div>
+              <div class="stat-label">Pouvoir d'achat ajusté</div>
+            </div>
+            <div class="stat-value" id="resRealFuture">—</div>
+          </div>
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Total versé</div>
+            </div>
+            <div class="stat-value" id="resInvested">—</div>
+          </div>
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Intérêts générés</div>
+            </div>
+            <div class="stat-value" id="resInterest">—</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="foot">
-  100 % autonome — calculs exécutés localement<br><br>
-  <a href="https://redpi.fr" target="_blank" rel="noopener">redpi.fr</a>
-</div>
+  <div class="foot">
+    100 % autonome — calculs exécutés localement<br><br>
+    <a href="https://redpi.fr" target="_blank" rel="noopener">redpi.fr</a>
+  </div>
 
-<script>
-const fields = ['init','pmt','years','rate'];
-function save(){
-  const data = {};
-  fields.forEach(id => data[id] = document.getElementById(id).value);
-  localStorage.setItem('compoundCalcData', JSON.stringify(data));
-}
-function load(){
-  const saved = localStorage.getItem('compoundCalcData');
-  if(saved){
-    try {
-      const data = JSON.parse(saved);
-      fields.forEach(id => { if(data[id] !== undefined) document.getElementById(id).value = data[id]; });
-    } catch(e){}
-  }
-}
+  <script>
+    function calculateCompoundInterest() {
+      const initialAmount = parseFloat(document.getElementById('init').value) || 0;
+      const monthlyContribution = parseFloat(document.getElementById('pmt').value) || 0;
+      const years = parseFloat(document.getElementById('years').value) || 0;
+      const annualRate = parseFloat(document.getElementById('rate').value) || 0;
+      const inflationRate = parseFloat(document.getElementById('inflationRate').value) || 0;
+      const adjustInflation = document.getElementById('chkInflation').checked;
 
-function fmtEUR(n){ return isFinite(n) ? n.toLocaleString('fr-FR',{maximumFractionDigits:0}) + ' €' : '—'; }
+      const months = years * 12;
+      const monthlyRate = annualRate / 100 / 12;
 
-function calc(){
-  save();
-  const p0 = parseFloat(document.getElementById('init').value)||0;
-  const pmt = parseFloat(document.getElementById('pmt').value)||0;
-  const years = Math.max(1, parseInt(document.getElementById('years').value)||1);
-  const rate = parseFloat(document.getElementById('rate').value)||0;
-  
-  const i = (rate/100)/12;
-  const nMonths = years*12;
-  const growth = Math.pow(1+i, nMonths);
-  const nominal = p0 * growth + (i !== 0 ? pmt * (growth - 1) / i : pmt * nMonths);
-  const paid = p0 + pmt * nMonths;
+      let totalInvested = initialAmount + (monthlyContribution * months);
+      let futureValue = initialAmount * Math.pow(1 + monthlyRate, months);
 
-  document.getElementById('out_main').textContent = fmtEUR(nominal);
-  document.getElementById('out_paid').textContent = fmtEUR(paid);
-}
+      for (let i = 1; i <= months; i++) {
+        futureValue += monthlyContribution * Math.pow(1 + monthlyRate, months - i);
+      }
 
-function resetAll(){
-  if(confirm("Réinitialiser les paramètres ?")){
-    localStorage.removeItem('compoundCalcData');
-    location.reload();
-  }
-}
+      const interestEarned = futureValue - totalInvested;
+      const realFutureValue = futureValue / Math.pow(1 + (inflationRate / 100), years);
 
-fields.forEach(id => document.getElementById(id).addEventListener('input', calc));
-load(); calc();
-</script>
+      return {
+        totalInvested: totalInvested.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        futureValue: futureValue.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        realFutureValue: realFutureValue.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        interestEarned: interestEarned.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        adjustInflation
+      };
+    }
+
+    function updateUI() {
+      const res = calculateCompoundInterest();
+      document.getElementById('resInvested').textContent = res.totalInvested + ' €';
+      document.getElementById('resFuture').textContent = res.futureValue + ' €';
+      document.getElementById('resInterest').textContent = res.interestEarned + ' €';
+
+      const realBox = document.getElementById('resRealBox');
+      if (res.adjustInflation) {
+        realBox.style.display = 'flex';
+        document.getElementById('resRealFuture').textContent = res.realFutureValue + ' €';
+      } else {
+        realBox.style.display = 'none';
+      }
+    }
+
+    function toggleInflation(checked) {
+      const group = document.getElementById('inflationRateGroup');
+      group.style.display = checked ? 'block' : 'none';
+      updateUI();
+    }
+
+    function resetAll() {
+      document.getElementById('init').value = 10000;
+      document.getElementById('pmt').value = 100;
+      document.getElementById('years').value = 20;
+      document.getElementById('rate').value = 8;
+      document.getElementById('inflationRate').value = 2;
+      document.getElementById('chkInflation').checked = true;
+      toggleInflation(true);
+    }
+
+    updateUI();
+  </script>
 </body>
+
 </html>
